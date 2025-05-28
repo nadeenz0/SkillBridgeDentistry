@@ -1,0 +1,49 @@
+# Build folders
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+.vscode/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider IDE files
+.idea/
+
+# ASP.NET Core files
+appsettings.json
+appsettings.Development.json
+
+# Logs
+*.log
+
+# Publish folder
+publish/
+
+# npm packages
+node_modules/
+
+# Uploads or any big media folders you don't want to track
+wwwroot/uploads/
+
+# JetBrains Rider
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Others
+*.db
+*.sqlite
+
+# Ignore folder with space in your case (adjust if needed)
+SkillBridgeDentistry1 soll/
+
+
+
