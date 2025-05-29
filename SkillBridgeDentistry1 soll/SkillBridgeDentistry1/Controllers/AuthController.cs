@@ -294,6 +294,7 @@ namespace SkillBridgeDentistry1.Controllers
             var user = await _userManager.Users
                 .Include(u => u.freashGrad)
                 .Include(u => u.Consultant)
+                .ThenInclude(c => c.Department)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
@@ -327,7 +328,8 @@ namespace SkillBridgeDentistry1.Controllers
                 {
                     ResumeLink = user.Consultant.ResumeLink,
                     ProfilePicturePath = user.Consultant.ProfilePicturePath,
-                    YearOfExperience = user.Consultant.YearsOfExperience
+                    YearOfExperience = user.Consultant.YearsOfExperience,
+                    Department = user.Consultant.Department?.Name
                 };
             }
             else

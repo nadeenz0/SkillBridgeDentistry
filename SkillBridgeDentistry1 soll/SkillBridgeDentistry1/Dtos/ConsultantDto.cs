@@ -5,5 +5,6 @@
         public string ResumeLink { get; set; }
         public string ProfilePicturePath { get; set; }
         public int YearOfExperience { get; set; }
+        public string Department { get; set; }
     }
 }

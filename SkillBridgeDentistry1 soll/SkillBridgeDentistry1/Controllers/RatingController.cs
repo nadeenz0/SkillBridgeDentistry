@@ -21,33 +21,47 @@ namespace SkillBridgeDentistry1.Controllers
             _context = context;
             _context=context;
         }
+
         [Authorize(Roles = "FreshGraduate")]
         [HttpPost("rate-consultant")]
         public async Task<IActionResult> RateConsultant([FromBody] RateDto dto)
         {
             var caseConsultant = await _context.CaseConsultants
-                .FirstOrDefaultAsync(cc => cc.CaseRequestId == dto.CaseRequestId && cc.ConsultantId == dto.ConsultantId);
+                .FirstOrDefaultAsync(cc => cc.CaseConsultantId == dto.CaseConsultantId);
 
             if (caseConsultant == null)
-                return NotFound("No Case Or Consultant Found");
+                return NotFound("No CaseConsultant Found");
 
             caseConsultant.Rating = dto.Rate;
 
             // تحديث متوسط تقييم الاستشاري في جدول Consultant
-            var consultant = await _context.Consultants.FindAsync(dto.ConsultantId);
+            var rates = await _context.CaseConsultants
+                .Where(cc => cc.ConsultantId == caseConsultant.ConsultantId && cc.Rating.HasValue)
+                .Select(cc => cc.Rating.Value)
+                .ToListAsync();
+
+            var averageRating = rates.Any() ? Convert.ToDecimal(rates.Average()) : 0;
+
+            var consultant = await _context.Consultants
+                .FirstOrDefaultAsync(c => c.ConsultantId == caseConsultant.ConsultantId);
+
             if (consultant != null)
             {
-                var rates = await _context.CaseConsultants
-                    .Where(cc => cc.ConsultantId == dto.ConsultantId && cc.Rating.HasValue)
-                    .Select(cc => cc.Rating.Value)
-                    .ToListAsync();
+                consultant.Rating = averageRating;
 
-                consultant.Rating = Convert.ToDecimal(rates.Average());
+                // تأكيد إنه مضاف للتراك
+                _context.Consultants.Update(consultant);
             }
 
             await _context.SaveChangesAsync();
+
             return Ok("Rating Saved Successfully");
         }
+
+
+
+
+
         [HttpGet("consultants-for-rating/{caseRequestId}")]
         public async Task<IActionResult> GetConsultantsForRating(int caseRequestId)
         {
@@ -57,8 +71,8 @@ namespace SkillBridgeDentistry1.Controllers
                 .Where(cc => cc.CaseRequestId == caseRequestId && cc.Diagnosis != null &&cc.Treatment != null)
                 .Select(cc => new
                 {
-                    ConsultantId = cc.ConsultantId,
-                    Name = cc.Consultant.User.FullName
+                    CaseConsultantId = cc.CaseConsultantId,
+                    ConsultantId = cc.ConsultantId,   
                 }).ToListAsync();
 
             return Ok(consultants);
